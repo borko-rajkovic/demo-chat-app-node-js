@@ -1,14 +1,56 @@
-import { setEntries, next, vote, INITIAL_STATE } from './core.js';
+import _ from 'lodash';
 
-export default function reducer(state = INITIAL_STATE, action) {
-    switch (action.type) {
-        case 'SET_ENTRIES':
-            return setEntries(state, action.entries);
-        case 'NEXT':
-            return next(state);
-        case 'VOTE':
-            return state.update('vote',
-                            voteState => vote(voteState, action.entry));
+import Reducer from './reducer-template';
+
+class ArticlesReducer extends Reducer {
+
+    getInitialState() {
+        return {
+            retrieved: false,
+            loading: true,
+            errored: false,
+            topics: []
+        };
     }
-    return state;
-};
+
+    getTypeHandlers() {
+        return {
+            'GET_ARTICLES_FULFILLED': this.onArticlesRetrieved,
+            'GET_ARTICLES_REJECTED': this.onArticlesRejected,
+            'INIT_ARTICLES': this.onInitArticles
+        };
+    }
+
+    onArticlesRetrieved(state, payload) {
+        return _.extend({}, state, {
+            retrieved: true,
+            loading: false,
+            errored: false,
+            topics: payload.data
+        });
+    }
+
+    onArticlesRejected(state) {
+        return _.extend({}, state, {
+            retrieved: true,
+            loading: false,
+            errored: true
+        });
+    }
+
+    onInitArticles(state) {
+        let topics = null;
+
+        if(topics) {
+            topics = JSON.parse(topics);
+        }
+
+        return _.extend({}, state, {
+            retrieved: !!topics,
+            loading: false,
+            topics: topics
+        });
+    }
+}
+
+export default ArticlesReducer.getInstance();
