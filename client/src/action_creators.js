@@ -18,3 +18,10 @@ export function receiveMessage(payload) {
     payload
   };
 }
+
+export function initUser(payload){
+  return {
+    type: 'INIT_USER',
+    payload
+  }
+}

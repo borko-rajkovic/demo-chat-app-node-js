@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { initUser } from './action_creators';
 import { connect } from 'react-redux';
 import './App.css';
 
@@ -8,14 +9,20 @@ class App extends Component {
     this.refName = React.createRef();
   }
 
-  state = {
-    name: 'Name'
-  };
-
   changeName(e) {
     e.preventDefault();
     if (this.refName.current.value) {
-      this.setState({ name: this.refName.current.value });
+      this.props.socket.emit('change-name', {
+        name: this.refName.current.value,
+        socketId: this.props.socket.id
+      });
+      this.props.dispatch(
+        initUser({
+          socket: this.props.socket,
+          socketId: this.props.socket.id,
+          name: this.refName.current.value
+        })
+      );
       this.refName.current.value = '';
     }
   }
@@ -25,7 +32,7 @@ class App extends Component {
       <React.Fragment>
         <nav className="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
           <div className="navbar-brand col-sm-3 col-md-2 mr-0" href="">
-            {this.state.name}
+            {this.props.name}
           </div>
           <input
             className="form-control form-control-dark w-100"
@@ -159,12 +166,12 @@ class App extends Component {
 
 export default connect(store => {
   return {
-    loading: store.loading
+    socket: store.socket,
+    socketId: store.socketId,
+    name: store.name
   };
 })(App);
 
-//TODO on connect, set socket id
-//TODO on change name, emit
 //TODO on receive initial data, set list of sockets
 //TODO on choose socket, update in store choosed socket
 //TODO on typing, emit typing
