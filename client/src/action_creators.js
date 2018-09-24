@@ -11,3 +11,10 @@ export function setTyping(payload) {
     payload
   };
 }
+
+export function receiveMessage(payload) {
+  return {
+    type: 'RECEIVE_MESSAGE',
+    payload
+  };
+}

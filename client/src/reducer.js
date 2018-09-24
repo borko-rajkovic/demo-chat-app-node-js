@@ -34,10 +34,7 @@ class UserReducer extends Reducer {
 
   getTypeHandlers() {
     return {
-      SET_USERS: this.onSetUsers,
-      GET_ARTICLES_FULFILLED: this.onArticlesRetrieved,
-      GET_ARTICLES_REJECTED: this.onArticlesRejected,
-      INIT_ARTICLES: this.onInitArticles
+      SET_USERS: this.onSetUsers
     };
   }
 

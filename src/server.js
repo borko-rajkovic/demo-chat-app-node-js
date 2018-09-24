@@ -38,10 +38,19 @@ export default function startServer(store) {
     };
   }
 
+  function onMessage(socket) {
+    return function(payload) {
+      console.log('payload', payload);
+      console.log('socketId', socket.id);
+      io.to(`${payload.to}`).emit('message', {value: payload.value, from: socket.id});
+    };
+  }
+
   io.on('connection', socket => {
     onConnect(socket);
     socket.on('change-name', onChangeName);
     socket.on('disconnect', onDisconnect(socket));
     socket.on('typing', onTyping(socket));
+    socket.on('message', onMessage(socket));
   });
 }
