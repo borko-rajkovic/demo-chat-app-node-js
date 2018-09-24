@@ -1,5 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import 'bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'font-awesome/css/font-awesome.min.css'
 import { createStore, applyMiddleware, compose } from 'redux';
 import { Provider } from 'react-redux';
 import reducer from './reducer';
@@ -9,8 +12,6 @@ import { setState } from './action_creators';
 import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
-import 'bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 const socket = io(`localhost:9090`);
 socket.on('state', state =>
