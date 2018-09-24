@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import './App.css';
 
 class App extends Component {
@@ -137,15 +137,19 @@ class App extends Component {
             </main>
           </div>
         </div>
-        
+
         <footer className="footer p-2">
           <div className="container">
-            <input
-              className="form-control w-100"
-              type="text"
-              placeholder="Enter message"
-              aria-label="Enter message"
-            />
+            <div className="row">
+              <div className="offset-md-2 col-md-10">
+                <input
+                  className="form-control w-100"
+                  type="text"
+                  placeholder="Enter message"
+                  aria-label="Enter message"
+                />
+              </div>
+            </div>
           </div>
         </footer>
       </React.Fragment>
@@ -153,12 +157,11 @@ class App extends Component {
   }
 }
 
-export default connect((store) => {
+export default connect(store => {
   return {
-      loading: store.loading
+    loading: store.loading
   };
 })(App);
-
 
 //TODO on connect, set socket id
 //TODO on change name, emit
