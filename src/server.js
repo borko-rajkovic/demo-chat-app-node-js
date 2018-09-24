@@ -6,7 +6,7 @@ export default function startServer(store) {
   console.log('Server started');
 
   store.subscribe(
-      () => io.emit('state', store.getState().toJS())
+      () => io.emit('state', store.getState())
   );
 
   let i=0;
@@ -28,7 +28,7 @@ export default function startServer(store) {
 
   io.on('connection', (socket) => {
     onConnect(socket);
-    socket.emit('state', store.getState().toJS());
+    socket.emit('state', store.getState());
     socket.on(
           'action',
           onAction
