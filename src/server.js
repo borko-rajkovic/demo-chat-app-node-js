@@ -17,11 +17,13 @@ export default function startServer(store) {
   }
 
   function onConnect(socket) {
-    console.log(`Socket ${socket} connected`);
+    console.log(`Socket ${socket.id} connected`);
   }
 
   function onDisconnect(socket) {
-    console.log(`Socket ${socket} disconnected`);
+    return function(){
+      console.log(`Socket ${socket.id} disconnected`);
+    }
   }
 
   io.on('connection', (socket) => {
