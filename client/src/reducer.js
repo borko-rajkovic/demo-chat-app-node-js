@@ -3,8 +3,7 @@ import _ from 'lodash';
 import Reducer from './reducer-template';
 
 class UserReducer extends Reducer {
-
-/* state
+  /* state
 {
 	socketId: 'id',
     name: 'name',
@@ -24,61 +23,35 @@ class UserReducer extends Reducer {
 }
 */
 
-    getInitialState() {
-        return {
-            socketId: null,
-            name: null,
-            users: [],
-            sockets: []
-        };
-    }
+  getInitialState() {
+    return {
+      socketId: null,
+      name: null,
+      users: [],
+      sockets: []
+    };
+  }
 
-    getTypeHandlers() {
-        return {
-            'SET_USERS': this.onSetUsers,
-            'GET_ARTICLES_FULFILLED': this.onArticlesRetrieved,
-            'GET_ARTICLES_REJECTED': this.onArticlesRejected,
-            'INIT_ARTICLES': this.onInitArticles
-        };
-    }
+  getTypeHandlers() {
+    return {
+      SET_USERS: this.onSetUsers,
+      GET_ARTICLES_FULFILLED: this.onArticlesRetrieved,
+      GET_ARTICLES_REJECTED: this.onArticlesRejected,
+      INIT_ARTICLES: this.onInitArticles
+    };
+  }
 
-    onSetUsers(state, payload){
-        return {
-            ...state,
-            users: payload
-        }
-    }
-
-    onArticlesRetrieved(state, payload) {
-        return _.extend({}, state, {
-            retrieved: true,
-            loading: false,
-            errored: false,
-            topics: payload.data
-        });
-    }
-
-    onArticlesRejected(state) {
-        return _.extend({}, state, {
-            retrieved: true,
-            loading: false,
-            errored: true
-        });
-    }
-
-    onInitArticles(state) {
-        let topics = null;
-
-        if(topics) {
-            topics = JSON.parse(topics);
-        }
-
-        return _.extend({}, state, {
-            retrieved: !!topics,
-            loading: false,
-            topics: topics
-        });
-    }
+  onSetUsers(state, payload) {
+    const usersForInsert = payload.filter(
+      user =>
+        user.disconnected === false ||
+        _.find(state.users, { socketId: user.socketId })
+    );
+    return {
+      ...state,
+      users: usersForInsert
+    };
+  }
 }
 
 export default UserReducer.getInstance();

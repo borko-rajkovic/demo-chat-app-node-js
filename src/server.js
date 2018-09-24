@@ -30,9 +30,18 @@ export default function startServer(store) {
     };
   }
 
+  function onTyping(socket) {
+    return function(payload) {
+      console.log('payload', payload);
+      console.log('socketId', socket.id);
+      io.to(`${payload.to}`).emit('typing', {value: payload.value, from: socket.id});
+    };
+  }
+
   io.on('connection', socket => {
     onConnect(socket);
     socket.on('change-name', onChangeName);
     socket.on('disconnect', onDisconnect(socket));
+    socket.on('typing', onTyping(socket));
   });
 }
