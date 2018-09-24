@@ -3,13 +3,9 @@ import Server from 'socket.io';
 export default function startServer(store) {
   const io = new Server(9090);
 
-  console.log('Server started');
+  store.subscribe(() => io.emit('state', store.getState()));
 
-  store.subscribe(
-      () => io.emit('state', store.getState())
-  );
-
-  let i=0;
+  let i = 0;
 
   function onAction(action) {
     console.log(`Action ${i++} received`);
@@ -17,22 +13,24 @@ export default function startServer(store) {
   }
 
   function onConnect(socket) {
-    console.log(`Socket ${socket.id} connected`);
+    store.dispatch.bind(store)({
+      type: 'USER_CONNECT',
+      payload: { socketId: socket.id }
+    });
   }
 
   function onDisconnect(socket) {
-    return function(){
-      console.log(`Socket ${socket.id} disconnected`);
-    }
+    return function() {
+      store.dispatch.bind(store)({
+        type: 'USER_DISCONNECT',
+        payload: { socketId: socket.id }
+      });
+    };
   }
 
-  io.on('connection', (socket) => {
+  io.on('connection', socket => {
     onConnect(socket);
-    socket.emit('state', store.getState());
-    socket.on(
-          'action',
-          onAction
-      );
+    socket.on('action', onAction);
     socket.on('disconnect', onDisconnect(socket));
   });
 }

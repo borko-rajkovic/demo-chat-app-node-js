@@ -3,54 +3,72 @@ import _ from 'lodash';
 import Reducer from './reducer-template';
 
 class ArticlesReducer extends Reducer {
+  /* State should contain:
 
-    getInitialState() {
-        return {
-            retrieved: false,
-            loading: true,
-            errored: false,
-            topics: []
-        };
-    }
+users: [
+	{
+	userId: 'id',
+	userName: 'name',
+	disconnected: false,
+	sockets:	[
+					{
+						socketId: 1234,
+            messages: [
+							'message1',
+							'message2',
+							...
+						],
+            typed: 'something...'
+					},
+					...
+        ]
+	},
+	...
+]
 
-    getTypeHandlers() {
-        return {
-            'GET_ARTICLES_FULFILLED': this.onArticlesRetrieved,
-            'GET_ARTICLES_REJECTED': this.onArticlesRejected,
-            'INIT_ARTICLES': this.onInitArticles
-        };
-    }
+ */
 
-    onArticlesRetrieved(state, payload) {
-        return _.extend({}, state, {
-            retrieved: true,
-            loading: false,
-            errored: false,
-            topics: payload.data
-        });
-    }
+  getInitialState() {
+    return [];
+  }
 
-    onArticlesRejected(state) {
-        return _.extend({}, state, {
-            retrieved: true,
-            loading: false,
-            errored: true
-        });
-    }
+  getTypeHandlers() {
+    return {
+      USER_CONNECT: this.onUserConnect,
+      USER_DISCONNECT: this.onUserDisconnect,
+      USER_CHANGE_NAME: this.onUserChangeName
+    };
+  }
 
-    onInitArticles(state) {
-        let topics = null;
+  onUserConnect(state, payload) {
+    return [
+      ...state,
+      {
+        socketId: payload.socketId,
+        name: payload.socketId,
+        disconnected: false
+      }
+    ];
+  }
 
-        if(topics) {
-            topics = JSON.parse(topics);
-        }
+  onUserDisconnect(state, payload) {
+    return state.map(item => {
+      if (item.socketId != payload.socketId) {
+        return item;
+      }
+      return _.extend({}, item, { disconnected: true });
+    });
+  }
 
-        return _.extend({}, state, {
-            retrieved: !!topics,
-            loading: false,
-            topics: topics
-        });
-    }
+  onUserChangeName(state, payload) {
+    return state.map(item => {
+      if (item.socketId != payload.socketId) {
+        return item;
+      }
+
+      return _.extend({}, item, { name: payload.name });
+    });
+  }
 }
 
 export default ArticlesReducer.getInstance();
