@@ -170,23 +170,3 @@ export default connect(store => {
 //TODO on typing, emit typing
 //TODO on ENTER, emit enter and update messages
 //TODO on received messages update messages to socket that send message
-
-/*
-{
-	socketId: 'id',
-	name: 'name',
-	sockets:	[
-					{
-						socketId: 1234,
-            messages: [
-							'message1',
-							'message2',
-							...
-						],
-            typed: 'something...'
-					},
-					...
-        ]
-}
-
- */

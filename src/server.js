@@ -3,13 +3,15 @@ import Server from 'socket.io';
 export default function startServer(store) {
   const io = new Server(9090);
 
-  store.subscribe(() => io.emit('state', store.getState()));
+  store.subscribe(() => io.emit('users', store.getState()));
 
   let i = 0;
 
-  function onAction(action) {
-    console.log(`Action ${i++} received`);
-    store.dispatch.bind(store)(action);
+  function onChangeName(payload) {
+    store.dispatch.bind(store)({
+      type: 'USER_CHANGE_NAME',
+      payload
+    });
   }
 
   function onConnect(socket) {
@@ -30,7 +32,7 @@ export default function startServer(store) {
 
   io.on('connection', socket => {
     onConnect(socket);
-    socket.on('action', onAction);
+    socket.on('change-name', onChangeName);
     socket.on('disconnect', onDisconnect(socket));
   });
 }

@@ -1,7 +1,7 @@
-export function setState(state) {
+export function setUsers(state) {
   return {
-      type: 'SET_STATE',
-      state
+      type: 'SET_USERS',
+      payload: state
   };
 }
 

@@ -8,15 +8,19 @@ import { Provider } from 'react-redux';
 import reducer from './reducer';
 import remoteActionMiddleware from './remote_action_middleware';
 import io from 'socket.io-client';
-import { setState } from './action_creators';
+import { setUsers } from './action_creators';
 import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 
 const socket = io(`localhost:9090`);
-socket.on('state', state =>
-  store.dispatch(setState(state))
+socket.on('users', state =>
+  store.dispatch(setUsers(state))
 );
+
+setTimeout(() => {
+  socket.emit('change-name', {name: 'TEST2222', socketId: socket.id});
+}, 100);
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
