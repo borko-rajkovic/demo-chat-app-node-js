@@ -2,7 +2,7 @@ import _ from 'lodash';
 
 import Reducer from './reducer-template';
 
-class ArticlesReducer extends Reducer {
+class UsersReducer extends Reducer {
   /* State should contain:
 
 users: [
@@ -71,4 +71,4 @@ users: [
   }
 }
 
-export default ArticlesReducer.getInstance();
+export default UsersReducer.getInstance();

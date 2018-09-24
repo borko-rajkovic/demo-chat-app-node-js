@@ -32,16 +32,12 @@ export default function startServer(store) {
 
   function onTyping(socket) {
     return function(payload) {
-      console.log('payload', payload);
-      console.log('socketId', socket.id);
       io.to(`${payload.to}`).emit('typing', {value: payload.value, from: socket.id});
     };
   }
 
   function onMessage(socket) {
     return function(payload) {
-      console.log('payload', payload);
-      console.log('socketId', socket.id);
       io.to(`${payload.to}`).emit('message', {value: payload.value, from: socket.id});
     };
   }
