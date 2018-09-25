@@ -194,6 +194,7 @@ class App extends Component {
                   type="text"
                   placeholder="Enter message"
                   aria-label="Enter message"
+                  readOnly={this.props.socketSelected===null}
                 />
               </div>
             </div>
