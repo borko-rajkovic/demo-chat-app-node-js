@@ -6,7 +6,6 @@ import 'font-awesome/css/font-awesome.min.css';
 import { createStore, applyMiddleware, compose } from 'redux';
 import { Provider } from 'react-redux';
 import reducer from './reducer';
-import remoteActionMiddleware from './remote_action_middleware';
 import io from 'socket.io-client';
 import { setUsers, setTyping, receiveMessage, initUser } from './action_creators';
 import './index.css';
@@ -59,7 +58,7 @@ const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
 const store = createStore(
   reducer,
-  composeEnhancers(applyMiddleware(remoteActionMiddleware(socket)))
+  composeEnhancers(applyMiddleware())
 );
 
 ReactDOM.render(
