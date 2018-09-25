@@ -30,6 +30,9 @@ class UserReducer extends Reducer {
       name: null,
       editName: '',
       socketSelected: null,
+      peekTyping: false,
+      typings: {},
+      receivedTypings: {},
       users: [],
       sockets: []
     };
@@ -40,7 +43,37 @@ class UserReducer extends Reducer {
       SET_USERS: this.onSetUsers,
       INIT_USER: this.onInitUser,
       SET_EDIT_NAME: this.onSetEditName,
-      SOCKET_SELECTED: this.onSocketSelected
+      SOCKET_SELECTED: this.onSocketSelected,
+      ON_TYPING: this.onTyping,
+      SET_TYPING: this.onSetTyping,
+      TOGGLE_PEEK: this.onTogglePeek
+    };
+  }
+
+  onTogglePeek(state){
+    return {
+      ...state,
+      peekTyping: !state.peekTyping
+    }
+  }
+
+  onTyping(state, payload){
+    return {
+      ...state,
+      typings: {
+        ...state.typings,
+        [payload.to]: payload.value
+      }
+    };
+  }
+
+  onSetTyping(state, payload){
+    return {
+      ...state,
+      receivedTypings: {
+        ...state.typings,
+        [payload.from]: payload.value
+      }
     };
   }
 

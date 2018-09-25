@@ -1,5 +1,11 @@
 import React, { Component } from 'react';
-import { initUser, setEditName, selectSocket } from './action_creators';
+import {
+  initUser,
+  setEditName,
+  selectSocket,
+  onTyping,
+  togglePeek
+} from './action_creators';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import './App.css';
@@ -40,6 +46,25 @@ class App extends Component {
   onClickUser(socketId) {
     this.props.dispatch(selectSocket(socketId));
   }
+
+  onChangeMessage(e) {
+    this.props.socket.emit('typing', {
+      value: e.target.value,
+      to: this.props.socketSelected
+    });
+    this.props.dispatch(
+      onTyping({ value: e.target.value, to: this.props.socketSelected })
+    );
+  }
+
+  _handleMessageKeyPress = e => {
+    if (e.key === 'Enter' && this.props.currentTyping !== '') {
+      // emit message
+      this.props.dispatch(
+        onTyping({ value: '', to: this.props.socketSelected })
+      );
+    }
+  };
 
   render() {
     return (
@@ -87,12 +112,16 @@ class App extends Component {
                             {
                               active:
                                 user.socketId === this.props.socketSelected
-                            },
-                            { disabled: user.disconnected === true }
+                            }
                           )}
                           onClick={this.onClickUser.bind(this, user.socketId)}
                         >
-                          <i className="fa fa-user fa-lg" /> {user.name}{' '}
+                          <i
+                            className={classNames('fa', 'fa-user', 'fa-lg', {
+                              'user-active': user.disconnected === false
+                            })}
+                          />{' '}
+                          {user.name}{' '}
                         </button>
                       </li>
                     );
@@ -165,20 +194,61 @@ class App extends Component {
                   />
                 </div>
               </div>
-              <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+              <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 mb-3">
                 <h1
                   className={classNames(
                     'h2',
-                    { 'font-italic': this.props.socketSelected === null },
-                    { 'text-muted': this.props.socketSelected === null }
+                    {
+                      'font-italic':
+                        this.props.socketSelected === null ||
+                        this.props.users.find(
+                          user => user.socketId === this.props.socketSelected
+                        ).disconnected === true
+                    },
+                    {
+                      'text-muted':
+                        this.props.socketSelected === null ||
+                        this.props.users.find(
+                          user => user.socketId === this.props.socketSelected
+                        ).disconnected === true
+                    }
                   )}
                 >
                   {this.props.socketSelected
                     ? this.props.users.find(
                         user => user.socketId === this.props.socketSelected
-                      ).name
+                      ).name +
+                      (this.props.users.find(
+                        user => user.socketId === this.props.socketSelected
+                      ).disconnected === true
+                        ? ' - disconnected'
+                        : '')
                     : 'User not selected'}
                 </h1>
+                <div className="form-check">
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    checked={this.props.peekTyping}
+                    onChange={() => this.props.dispatch(togglePeek())}
+                  />
+                  <label className="form-check-label" htmlFor="defaultCheck1">
+                    Peek typing
+                  </label>
+                </div>
+              </div>
+              <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-3 border-bottom">
+                {this.props.socketSelected !== null &&
+                this.props.receivedTypings[this.props.socketSelected] &&
+                this.props.peekTyping === true ? (
+                  <h2 className={classNames('h5', 'font-italic', 'text-muted')}>
+                    {this.props.users.find(
+                      user => user.socketId === this.props.socketSelected
+                    ).name +
+                      ' is typing: ' +
+                      this.props.receivedTypings[this.props.socketSelected]}
+                  </h2>
+                ) : null}
               </div>
               <h1 className="h2">Dashboard</h1>
             </main>
@@ -194,7 +264,15 @@ class App extends Component {
                   type="text"
                   placeholder="Enter message"
                   aria-label="Enter message"
-                  readOnly={this.props.socketSelected===null}
+                  readOnly={
+                    this.props.socketSelected === null ||
+                    this.props.users.find(
+                      user => user.socketId === this.props.socketSelected
+                    ).disconnected === true
+                  }
+                  onChange={this.onChangeMessage.bind(this)}
+                  value={this.props.currentTyping}
+                  onKeyPress={this._handleMessageKeyPress.bind(this)}
                 />
               </div>
             </div>
@@ -212,10 +290,13 @@ export default connect(store => {
     name: store.name,
     editName: store.editName,
     users: store.users,
-    socketSelected: store.socketSelected
+    socketSelected: store.socketSelected,
+    typings: store.typings,
+    currentTyping: store.typings[store.socketSelected] || '',
+    receivedTypings: store.receivedTypings,
+    peekTyping: store.peekTyping
   };
 })(App);
 
-//TODO on typing, emit typing
 //TODO on ENTER, emit enter and update messages
 //TODO on received messages update messages to socket that send message

@@ -39,3 +39,17 @@ export function selectSocket(payload){
     payload
   }
 }
+
+export function onTyping(payload){
+  return {
+    type: 'ON_TYPING',
+    payload
+  }
+}
+
+export function togglePeek(payload){
+  return {
+    type: 'TOGGLE_PEEK',
+    payload
+  }
+}
