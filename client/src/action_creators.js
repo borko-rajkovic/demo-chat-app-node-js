@@ -32,3 +32,10 @@ export function setEditName(payload){
     payload
   }
 }
+
+export function selectSocket(payload){
+  return {
+    type: 'SOCKET_SELECTED',
+    payload
+  }
+}

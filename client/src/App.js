@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import { initUser, setEditName } from './action_creators';
+import { initUser, setEditName, selectSocket } from './action_creators';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
 import './App.css';
 
 class App extends Component {
@@ -17,22 +18,27 @@ class App extends Component {
           name: this.props.editName
         })
       );
+      this.props.dispatch(setEditName(''));
     }
   }
 
-  onChangeEditName(e){
+  onChangeEditName(e) {
     this.props.dispatch(setEditName(e.target.value));
   }
 
-  _handleEditNameKeyPress = (e) =>{
-    if (e.key === 'Enter'){
+  _handleEditNameKeyPress = e => {
+    if (e.key === 'Enter') {
       this.changeName();
     }
-  }
+  };
 
-  _handleChangeNameClick = (e) => {
+  _handleChangeNameClick = e => {
     e.preventDefault();
     this.changeName();
+  };
+
+  onClickUser(socketId) {
+    this.props.dispatch(selectSocket(socketId));
   }
 
   render() {
@@ -68,17 +74,29 @@ class App extends Component {
             <nav className="col-md-2 d-none d-md-block bg-light sidebar">
               <div className="sidebar-sticky">
                 <ul className="nav flex-column">
-                  <li className="nav-item">
-                    <a className="nav-link active" href="">
-                      <i className="fa fa-user fa-lg" /> Dashboard{' '}
-                      <span className="sr-only">(current)</span>
-                    </a>
-                  </li>
-                  <li className="nav-item">
-                    <a className="nav-link" href="">
-                      <i className="fa fa-user fa-lg" /> Orders
-                    </a>
-                  </li>
+                  {this.props.users.map((user, index) => {
+                    return (
+                      <li key={index} className="nav-item">
+                        <button
+                          className={classNames(
+                            'btn',
+                            'btn-block',
+                            'btn-light',
+                            'p1',
+                            'text-left',
+                            {
+                              active:
+                                user.socketId === this.props.socketSelected
+                            },
+                            { disabled: user.disconnected === true }
+                          )}
+                          onClick={this.onClickUser.bind(this, user.socketId)}
+                        >
+                          <i className="fa fa-user fa-lg" /> {user.name}{' '}
+                        </button>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             </nav>
@@ -148,7 +166,19 @@ class App extends Component {
                 </div>
               </div>
               <div className="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                <h1 className="h2">Dashboard</h1>
+                <h1
+                  className={classNames(
+                    'h2',
+                    { 'font-italic': this.props.socketSelected === null },
+                    { 'text-muted': this.props.socketSelected === null }
+                  )}
+                >
+                  {this.props.socketSelected
+                    ? this.props.users.find(
+                        user => user.socketId === this.props.socketSelected
+                      ).name
+                    : 'User not selected'}
+                </h1>
               </div>
               <h1 className="h2">Dashboard</h1>
             </main>
@@ -179,11 +209,12 @@ export default connect(store => {
     socket: store.socket,
     socketId: store.socketId,
     name: store.name,
-    editName: store.editName
+    editName: store.editName,
+    users: store.users,
+    socketSelected: store.socketSelected
   };
 })(App);
 
-//TODO on receive initial data, set list of sockets
 //TODO on choose socket, update in store choosed socket
 //TODO on typing, emit typing
 //TODO on ENTER, emit enter and update messages

@@ -29,6 +29,7 @@ class UserReducer extends Reducer {
       socketId: null,
       name: null,
       editName: '',
+      socketSelected: null,
       users: [],
       sockets: []
     };
@@ -38,8 +39,16 @@ class UserReducer extends Reducer {
     return {
       SET_USERS: this.onSetUsers,
       INIT_USER: this.onInitUser,
-      SET_EDIT_NAME: this.onSetEditName
+      SET_EDIT_NAME: this.onSetEditName,
+      SOCKET_SELECTED: this.onSocketSelected
     };
+  }
+
+  onSocketSelected(state, payload){
+    return {
+      ...state,
+      socketSelected: payload
+    }
   }
 
   onInitUser(state, payload) {
