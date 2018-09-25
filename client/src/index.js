@@ -7,13 +7,16 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import { Provider } from 'react-redux';
 import reducer from './reducer';
 import io from 'socket.io-client';
-import { setUsers, setTyping, receiveMessage, initUser } from './action_creators';
+import { setUsers, setTyping, receiveMessage, initUser, setEditName } from './action_creators';
 import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 
 const socket = io(`localhost:9090`);
-socket.on('connect', () => store.dispatch(initUser({socket, socketId: socket.id, name: socket.id})));
+socket.on('connect', () => {
+  store.dispatch(initUser({socket, socketId: socket.id, name: socket.id}))
+  store.dispatch(setEditName(socket.id));
+});
 socket.on('users', state => store.dispatch(setUsers(state)));
 socket.on('typing', typing => store.dispatch(setTyping(typing)));
 socket.on('message', message => store.dispatch(receiveMessage(message)));

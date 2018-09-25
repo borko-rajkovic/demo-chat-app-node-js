@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import {
   initUser,
   setEditName,
@@ -12,6 +13,22 @@ import classNames from 'classnames';
 import './App.css';
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      modal: true
+    };
+
+    this.toggle = this.toggle.bind(this);
+  }
+
+  toggle() {
+    this.setState({
+      modal: !this.state.modal
+    });
+    this.props.dispatch(setEditName(''));
+  }
+
   changeName() {
     if (this.props.editName) {
       this.props.socket.emit('change-name', {
@@ -35,6 +52,7 @@ class App extends Component {
 
   _handleEditNameKeyPress = e => {
     if (e.key === 'Enter') {
+      this.setState({ modal: false });
       this.changeName();
     }
   };
@@ -83,6 +101,31 @@ class App extends Component {
   render() {
     return (
       <React.Fragment>
+        <div>
+          <Modal
+            isOpen={this.state.modal}
+            toggle={this.toggle}
+            className={this.props.className}
+          >
+            <ModalHeader toggle={this.toggle}>Change name</ModalHeader>
+            <ModalBody>
+              <input
+                className="form-control w-100"
+                type="text"
+                placeholder="Enter name"
+                aria-label="Enter name"
+                onChange={this.onChangeEditName.bind(this)}
+                value={this.props.editName}
+                onKeyPress={this._handleEditNameKeyPress.bind(this)}
+              />
+            </ModalBody>
+            <ModalFooter>
+              <Button color="primary" onClick={this.toggle}>
+                Ok
+              </Button>{' '}
+            </ModalFooter>
+          </Modal>
+        </div>
         <nav className="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
           <div className="navbar-brand col-sm-3 col-md-2 mr-0" href="">
             {this.props.name}
@@ -311,6 +354,5 @@ export default connect(store => {
     peekTyping: store.peekTyping
   };
 })(App);
-
 
 //TODO display messages
