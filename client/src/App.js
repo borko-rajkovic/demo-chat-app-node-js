@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import _ from 'lodash';
 import moment from 'moment';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import {
@@ -187,6 +188,25 @@ class App extends Component {
                             })}
                           />{' '}
                           {user.name}{' '}
+                          {_.filter(
+                            this.props.messages[user.socketId],
+                            function(message) {
+                              if (message.unread === true) {
+                                return message;
+                              }
+                            }
+                          ).length > 0
+                            ? '(' +
+                              _.filter(
+                                this.props.messages[user.socketId],
+                                function(message) {
+                                  if (message.unread === true) {
+                                    return message;
+                                  }
+                                }
+                              ).length +
+                              ')'
+                            : ''}
                         </button>
                       </li>
                     );
@@ -343,9 +363,7 @@ class App extends Component {
                                       />
                                     </span>
                                     <div className="chat-body1 clearfix">
-                                      <p className="mr-2">
-                                        {item.value}
-                                      </p>
+                                      <p className="mr-2">{item.value}</p>
                                       <div className="chat_time pull-left">
                                         {moment(item.date).fromNow()}
                                       </div>
@@ -355,16 +373,19 @@ class App extends Component {
                                   <li className="left clearfix" key={index}>
                                     <span className="chat-img1 pull-left">
                                       <img
-                                        src={`http://placehold.it/50/55C1E7/fff&text=${
-                                          this.props.users.find(user => user.socketId === this.props.socketSelected).name.substr(0,1)}`}
+                                        src={`http://placehold.it/50/55C1E7/fff&text=${this.props.users
+                                          .find(
+                                            user =>
+                                              user.socketId ===
+                                              this.props.socketSelected
+                                          )
+                                          .name.substr(0, 1)}`}
                                         alt="User Avatar"
                                         className="img-circle"
                                       />
                                     </span>
                                     <div className="chat-body1 clearfix">
-                                      <p className="ml-2">
-                                        {item.value}
-                                      </p>
+                                      <p className="ml-2">{item.value}</p>
                                       <div className="chat_time pull-right">
                                         {moment(item.date).fromNow()}
                                       </div>

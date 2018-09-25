@@ -60,7 +60,8 @@ class UserReducer extends Reducer {
           {
             value: payload.value,
             isSelf: false,
-            date: new Date()
+            date: new Date(),
+            unread: state.socketSelected!==payload.from
           }
         ]
       }
@@ -95,9 +96,21 @@ class UserReducer extends Reducer {
   }
 
   onSocketSelected(state, payload) {
+
+    const updatedMessages = state.messages[payload].map(message => {
+      return {
+        ...message,
+        unread: false
+      }
+    })
+
     return {
       ...state,
-      socketSelected: payload
+      socketSelected: payload,
+      messages: {
+        ...state.messages,
+        [payload]: updatedMessages
+      }
     };
   }
 
@@ -124,7 +137,7 @@ class UserReducer extends Reducer {
           _.find(state.users, { socketId: user.socketId })) &&
         user.socketId !== state.socketId
     );
-    let messages = {};
+    let messages = state.messages;
     usersForInsert.forEach(user => {
       if (!messages[user.socketId]) {
         messages[user.socketId] = [];
