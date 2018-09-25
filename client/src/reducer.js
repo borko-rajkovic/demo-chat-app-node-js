@@ -28,6 +28,7 @@ class UserReducer extends Reducer {
       socket: null,
       socketId: null,
       name: null,
+      editName: '',
       users: [],
       sockets: []
     };
@@ -36,7 +37,8 @@ class UserReducer extends Reducer {
   getTypeHandlers() {
     return {
       SET_USERS: this.onSetUsers,
-      INIT_USER: this.onInitUser
+      INIT_USER: this.onInitUser,
+      SET_EDIT_NAME: this.onSetEditName
     };
   }
 
@@ -47,6 +49,13 @@ class UserReducer extends Reducer {
       socketId: payload.socketId,
       name: payload.name
     };
+  }
+
+  onSetEditName(state, payload){
+    return {
+      ...state,
+      editName: payload
+    }
   }
 
   onSetUsers(state, payload) {

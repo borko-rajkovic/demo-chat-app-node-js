@@ -25,3 +25,10 @@ export function initUser(payload){
     payload
   }
 }
+
+export function setEditName(payload){
+  return {
+    type: 'SET_EDIT_NAME',
+    payload
+  }
+}

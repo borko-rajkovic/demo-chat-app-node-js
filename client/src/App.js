@@ -1,30 +1,38 @@
 import React, { Component } from 'react';
-import { initUser } from './action_creators';
+import { initUser, setEditName } from './action_creators';
 import { connect } from 'react-redux';
 import './App.css';
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-    this.refName = React.createRef();
-  }
-
-  changeName(e) {
-    e.preventDefault();
-    if (this.refName.current.value) {
+  changeName() {
+    if (this.props.editName) {
       this.props.socket.emit('change-name', {
-        name: this.refName.current.value,
+        name: this.props.editName,
         socketId: this.props.socket.id
       });
       this.props.dispatch(
         initUser({
           socket: this.props.socket,
           socketId: this.props.socket.id,
-          name: this.refName.current.value
+          name: this.props.editName
         })
       );
-      this.refName.current.value = '';
     }
+  }
+
+  onChangeEditName(e){
+    this.props.dispatch(setEditName(e.target.value));
+  }
+
+  _handleEditNameKeyPress = (e) =>{
+    if (e.key === 'Enter'){
+      this.changeName();
+    }
+  }
+
+  _handleChangeNameClick = (e) => {
+    e.preventDefault();
+    this.changeName();
   }
 
   render() {
@@ -39,13 +47,15 @@ class App extends Component {
             type="text"
             placeholder="Enter name"
             aria-label="Enter name"
-            ref={this.refName}
+            onChange={this.onChangeEditName.bind(this)}
+            value={this.props.editName}
+            onKeyPress={this._handleEditNameKeyPress.bind(this)}
           />
           <ul className="navbar-nav px-3">
             <li className="nav-item text-nowrap">
               <a
                 className="nav-link"
-                onClick={this.changeName.bind(this)}
+                onClick={this._handleChangeNameClick.bind(this)}
                 href=""
               >
                 Change name
@@ -168,7 +178,8 @@ export default connect(store => {
   return {
     socket: store.socket,
     socketId: store.socketId,
-    name: store.name
+    name: store.name,
+    editName: store.editName
   };
 })(App);
 
