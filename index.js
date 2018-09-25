@@ -8,6 +8,7 @@ startServer(store);
  * Improval list:
  * 
  * - user login
+ * - prevent user duplicate names
  * - allow reconnect
  * - timestamps
  * - instead of typing, send characters changed

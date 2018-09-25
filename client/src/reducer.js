@@ -42,7 +42,8 @@ class UserReducer extends Reducer {
           ...state.messages[payload.to],
           {
             value: payload.value,
-            isSelf: true
+            isSelf: true,
+            date: new Date()
           }
         ]
       }
@@ -58,7 +59,8 @@ class UserReducer extends Reducer {
           ...state.messages[payload.from],
           {
             value: payload.value,
-            isSelf: false
+            isSelf: false,
+            date: new Date()
           }
         ]
       }

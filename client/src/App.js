@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import moment from 'moment';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap';
 import {
   initUser,
@@ -76,26 +77,33 @@ class App extends Component {
     );
   }
 
-  _handleMessageKeyPress = e => {
-    if (e.key === 'Enter' && this.props.currentTyping !== '') {
-      this.props.socket.emit('message', {
+  sendMessage() {
+    this.props.socket.emit('message', {
+      value: this.props.currentTyping,
+      to: this.props.socketSelected
+    });
+    this.props.socket.emit('typing', {
+      value: '',
+      to: this.props.socketSelected
+    });
+    this.props.dispatch(
+      sentMessage({
         value: this.props.currentTyping,
         to: this.props.socketSelected
-      });
-      this.props.socket.emit('typing', {
-        value: '',
-        to: this.props.socketSelected
-      });
-      this.props.dispatch(
-        sentMessage({
-          value: this.props.currentTyping,
-          to: this.props.socketSelected
-        })
-      );
-      this.props.dispatch(
-        onTyping({ value: '', to: this.props.socketSelected })
-      );
+      })
+    );
+    this.props.dispatch(onTyping({ value: '', to: this.props.socketSelected }));
+  }
+
+  _handleMessageKeyPress = e => {
+    if (e.key === 'Enter' && this.props.currentTyping !== '') {
+      this.sendMessage();
     }
+  };
+
+  _handleSendMessageClick = e => {
+    e.preventDefault();
+    this.sendMessage();
   };
 
   render() {
@@ -307,34 +315,119 @@ class App extends Component {
                   </h2>
                 ) : null}
               </div>
-              <h1 className="h2">Dashboard</h1>
+              {!this.props.socketSelected ? null : (
+                <div className="main_section">
+                  <div className="container">
+                    <div className="chat_container">
+                      <div className="col-sm-9 message_section">
+                        <div className="row">
+                          <div className="new_message_head">
+                            <div className="pull-left" />
+                            <div className="pull-right" />
+                          </div>
+                          <div className="chat_area">
+                            <ul className="list-unstyled">
+                              {this.props.messages[
+                                this.props.socketSelected
+                              ].map((item, index) => {
+                                return item.isSelf === true ? (
+                                  <li
+                                    className="left clearfix admin_chat"
+                                    key={index}
+                                  >
+                                    <span className="chat-img1 pull-right">
+                                      <img
+                                        src="http://placehold.it/50/FA6F57/fff&text=ME"
+                                        alt="User Avatar"
+                                        className="img-circle"
+                                      />
+                                    </span>
+                                    <div className="chat-body1 clearfix">
+                                      <p className="mr-2">
+                                        {item.value}
+                                      </p>
+                                      <div className="chat_time pull-left">
+                                        {moment(item.date).fromNow()}
+                                      </div>
+                                    </div>
+                                  </li>
+                                ) : (
+                                  <li className="left clearfix" key={index}>
+                                    <span className="chat-img1 pull-left">
+                                      <img
+                                        src={`http://placehold.it/50/55C1E7/fff&text=${
+                                          this.props.users.find(user => user.socketId === this.props.socketSelected).name.substr(0,1)}`}
+                                        alt="User Avatar"
+                                        className="img-circle"
+                                      />
+                                    </span>
+                                    <div className="chat-body1 clearfix">
+                                      <p className="ml-2">
+                                        {item.value}
+                                      </p>
+                                      <div className="chat_time pull-right">
+                                        {moment(item.date).fromNow()}
+                                      </div>
+                                    </div>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          </div>
+                          <div className="message_write">
+                            <input
+                              className="form-control w-100"
+                              type="text"
+                              placeholder="Enter message"
+                              aria-label="Enter message"
+                              readOnly={
+                                this.props.socketSelected === null ||
+                                this.props.users.find(
+                                  user =>
+                                    user.socketId === this.props.socketSelected
+                                ).disconnected === true
+                              }
+                              onChange={this.onChangeMessage.bind(this)}
+                              value={this.props.currentTyping}
+                              onKeyPress={this._handleMessageKeyPress.bind(
+                                this
+                              )}
+                            />
+                            <div className="clearfix" />
+                            <div className="chat_bottom">
+                              <a
+                                href=""
+                                className={classNames(
+                                  'pull-right',
+                                  'btn',
+                                  'btn-success',
+                                  {
+                                    disabled:
+                                      this.props.socketSelected === null ||
+                                      this.props.users.find(
+                                        user =>
+                                          user.socketId ===
+                                          this.props.socketSelected
+                                      ).disconnected === true
+                                  }
+                                )}
+                                onClick={this._handleSendMessageClick.bind(
+                                  this
+                                )}
+                              >
+                                Send
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </main>
           </div>
         </div>
-
-        <footer className="footer p-2">
-          <div className="container">
-            <div className="row">
-              <div className="offset-md-2 col-md-10">
-                <input
-                  className="form-control w-100"
-                  type="text"
-                  placeholder="Enter message"
-                  aria-label="Enter message"
-                  readOnly={
-                    this.props.socketSelected === null ||
-                    this.props.users.find(
-                      user => user.socketId === this.props.socketSelected
-                    ).disconnected === true
-                  }
-                  onChange={this.onChangeMessage.bind(this)}
-                  value={this.props.currentTyping}
-                  onKeyPress={this._handleMessageKeyPress.bind(this)}
-                />
-              </div>
-            </div>
-          </div>
-        </footer>
       </React.Fragment>
     );
   }
@@ -351,8 +444,7 @@ export default connect(store => {
     typings: store.typings,
     currentTyping: store.typings[store.socketSelected] || '',
     receivedTypings: store.receivedTypings,
-    peekTyping: store.peekTyping
+    peekTyping: store.peekTyping,
+    messages: store.messages
   };
 })(App);
-
-//TODO display messages
