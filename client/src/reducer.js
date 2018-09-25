@@ -3,26 +3,6 @@ import _ from 'lodash';
 import Reducer from './reducer-template';
 
 class UserReducer extends Reducer {
-  /* state
-{
-	socketId: 'id',
-    name: 'name',
-    users: [],
-	sockets:	[
-					{
-						socketId: 1234,
-            messages: [
-							'message1',
-							'message2',
-							...
-						],
-            typed: 'something...'
-					},
-					...
-        ]
-}
-*/
-
   getInitialState() {
     return {
       socket: null,
@@ -33,6 +13,7 @@ class UserReducer extends Reducer {
       peekTyping: false,
       typings: {},
       receivedTypings: {},
+      messages: {},
       users: [],
       sockets: []
     };
@@ -46,18 +27,52 @@ class UserReducer extends Reducer {
       SOCKET_SELECTED: this.onSocketSelected,
       ON_TYPING: this.onTyping,
       SET_TYPING: this.onSetTyping,
-      TOGGLE_PEEK: this.onTogglePeek
+      TOGGLE_PEEK: this.onTogglePeek,
+      SENT_MESSAGE: this.onSentMessage,
+      RECEIVE_MESSAGE: this.onReceiveMessage
     };
   }
 
-  onTogglePeek(state){
+  onSentMessage(state, payload) {
+    return {
+      ...state,
+      messages: {
+        ...state.messages,
+        [payload.to]: [
+          ...state.messages[payload.to],
+          {
+            value: payload.value,
+            isSelf: true
+          }
+        ]
+      }
+    };
+  }
+
+  onReceiveMessage(state, payload) {
+    return {
+      ...state,
+      messages: {
+        ...state.messages,
+        [payload.from]: [
+          ...state.messages[payload.from],
+          {
+            value: payload.value,
+            isSelf: false
+          }
+        ]
+      }
+    };
+  }
+
+  onTogglePeek(state) {
     return {
       ...state,
       peekTyping: !state.peekTyping
-    }
+    };
   }
 
-  onTyping(state, payload){
+  onTyping(state, payload) {
     return {
       ...state,
       typings: {
@@ -67,7 +82,7 @@ class UserReducer extends Reducer {
     };
   }
 
-  onSetTyping(state, payload){
+  onSetTyping(state, payload) {
     return {
       ...state,
       receivedTypings: {
@@ -77,11 +92,11 @@ class UserReducer extends Reducer {
     };
   }
 
-  onSocketSelected(state, payload){
+  onSocketSelected(state, payload) {
     return {
       ...state,
       socketSelected: payload
-    }
+    };
   }
 
   onInitUser(state, payload) {
@@ -93,22 +108,30 @@ class UserReducer extends Reducer {
     };
   }
 
-  onSetEditName(state, payload){
+  onSetEditName(state, payload) {
     return {
       ...state,
       editName: payload
-    }
+    };
   }
 
   onSetUsers(state, payload) {
     const usersForInsert = payload.filter(
       user =>
         (user.disconnected === false ||
-        _.find(state.users, { socketId: user.socketId }))&&user.socketId!==state.socketId
+          _.find(state.users, { socketId: user.socketId })) &&
+        user.socketId !== state.socketId
     );
+    let messages = {};
+    usersForInsert.forEach(user => {
+      if (!messages[user.socketId]) {
+        messages[user.socketId] = [];
+      }
+    });
     return {
       ...state,
-      users: usersForInsert
+      users: usersForInsert,
+      messages
     };
   }
 }

@@ -19,6 +19,13 @@ export function receiveMessage(payload) {
   };
 }
 
+export function sentMessage(payload) {
+  return {
+    type: 'SENT_MESSAGE',
+    payload
+  };
+}
+
 export function initUser(payload){
   return {
     type: 'INIT_USER',

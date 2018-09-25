@@ -4,7 +4,8 @@ import {
   setEditName,
   selectSocket,
   onTyping,
-  togglePeek
+  togglePeek,
+  sentMessage
 } from './action_creators';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
@@ -59,7 +60,20 @@ class App extends Component {
 
   _handleMessageKeyPress = e => {
     if (e.key === 'Enter' && this.props.currentTyping !== '') {
-      // emit message
+      this.props.socket.emit('message', {
+        value: this.props.currentTyping,
+        to: this.props.socketSelected
+      });
+      this.props.socket.emit('typing', {
+        value: '',
+        to: this.props.socketSelected
+      });
+      this.props.dispatch(
+        sentMessage({
+          value: this.props.currentTyping,
+          to: this.props.socketSelected
+        })
+      );
       this.props.dispatch(
         onTyping({ value: '', to: this.props.socketSelected })
       );
@@ -298,5 +312,5 @@ export default connect(store => {
   };
 })(App);
 
-//TODO on ENTER, emit enter and update messages
-//TODO on received messages update messages to socket that send message
+
+//TODO display messages
