@@ -215,7 +215,6 @@ export default connect(store => {
   };
 })(App);
 
-//TODO on choose socket, update in store choosed socket
 //TODO on typing, emit typing
 //TODO on ENTER, emit enter and update messages
 //TODO on received messages update messages to socket that send message
